@@ -1,11 +1,11 @@
 Mint.com API Client
 ===================
-#TODO
-This needs to be refactored into a proper module
-
 # Usage
-Add config.py with at least the following:
+See the __main__ code in mint.py. First decide how you will manage your Mint.com credentials. For instance, if you place them in a module called config, you might write:
+
 ```
-USERNAME = <Your Mint.com Username>
-PASSWORD = <Your Mint.com Password>
+import mint
+mint.login(config.USERNAME, config.PASSWORD)
+account_summaries = mint.get_account_summaries()
+# etc...
 ```

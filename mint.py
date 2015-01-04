@@ -33,7 +33,7 @@ def login(username, password):
   session_id = b.cookies.get('MINTJSESSIONID')
   route_id = b.cookies.get('ROUTEID')
 
-  # This case corresponds to a cookie parsing failure
+  # This case corresponds to cookie parsing failure
   if session_id is None or route_id is None:
     raw_cookies = filter(
       lambda x: (re.search('MINTJSESSIONID', x) is not None or
