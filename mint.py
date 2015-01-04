@@ -1,27 +1,35 @@
 import requests
-import json
 import re
-import csv
-from StringIO import StringIO
-from pprint import pprint
-import config
 
-if __name__ == '__main__':
-  print 'Checking Mint...'
+auth_headers = {}
 
+def _validate_credentials(fn):
+  def wrapper(*args):
+    def is_not_populated(d,r):
+      return reduce(
+        lambda x,y: x or y, 
+        map(lambda k: k not in d or not d[k], r)
+      )
+    if is_not_populated(auth_headers, ('cookie', 'token')):
+      raise Exception('Login first')
+    return fn(*args)
+  return wrapper
+
+
+def login(username, password):
   a = requests.get('https://wwws.mint.com/login.event')
-
   b = requests.post(
     'https://wwws.mint.com/loginUserSubmit.xevent', 
     cookies = a.cookies,
     headers = {'Accept': 'application/json'},
     data = {
-      'username': config.USERNAME,
-      'password': config.PASSWORD,
+      'username': username,
+      'password': password,
       'task': 'L'
     }
   )
 
+  token = b.json()['CSRFToken']
   session_id = b.cookies.get('MINTJSESSIONID')
   route_id = b.cookies.get('ROUTEID')
 
@@ -47,15 +55,13 @@ if __name__ == '__main__':
     if 'ROUTEID' in raw_cookies:
       route_id = raw_cookies['ROUTEID']
 
-  login_data = b.json()
-
-  auth_headers = {
-    'token': login_data['CSRFToken'],
-    'cookie': 'MINTJSESSIONID={0}; ROUTEID={1}'.format(session_id, route_id)
-  }
+  auth_headers['token'] = token
+  auth_headers['cookie'] = 'MINTJSESSIONID={0}; ROUTEID={1}'.format(session_id, 
+    route_id)
 
 
-  ## Get account summaries
+@_validate_credentials
+def get_account_summaries():
   c = requests.post(
     'https://wwws.mint.com/bundledServiceController.xevent?legacy=false',
     headers = auth_headers,
@@ -63,18 +69,16 @@ if __name__ == '__main__':
       'input': '[{"args":{"types":["BANK","CREDIT","INVESTMENT","LOAN","MORTGAGE","OTHER_PROPERTY","REAL_ESTATE","VEHICLE","UNCLASSIFIED"]},"service":"MintAccountService","task":"getAccountsSortedByBalanceDescending","id":"420775"},{"args":{"feature":"loan_transaction"},"service":"MintNewFeatureEnablementService","task":"isEnabled","id":"576602"},{"args":{"feature":"investments"},"service":"MintNewFeatureEnablementService","task":"isEnabled","id":"313054"}]'
     }
   )
-
   accounts = c.json()['response']['420775']['response']
-
   accounts = map(
     lambda x: (x['fiLoginDisplayName'] + ' - ' + x['name'], x['currentBalance']),
     accounts
   )
+  return dict(accounts)
 
-  pprint(dict(accounts))
 
-
-  ## Transactions as JSON
+@_validate_credentials
+def get_transactions():
   c = requests.get(
     'https://wwws.mint.com/app/getJsonData.xevent',
     headers = auth_headers,
@@ -88,10 +92,11 @@ if __name__ == '__main__':
       'rnd': '106'  
     }
   )
+  return c.json()
 
-  pprint(c.json())
 
-  ## Export to CSV
+@_validate_credentials
+def get_transactions_csv():
   c = requests.get(
     'https://wwws.mint.com/transactionDownload.event',
     headers = auth_headers,
@@ -101,7 +106,16 @@ if __name__ == '__main__':
       'comparableType': '8'
     }
   )
+  return c.text
 
-  ## Do something with the data
-  for row in csv.reader(StringIO(c.text)):
+
+if __name__ == '__main__':
+  import config
+  import csv
+  from StringIO import StringIO
+  from pprint import pprint
+  login(config.USERNAME, config.PASSWORD)
+  pprint(get_account_summaries())
+  pprint(get_transactions())
+  for row in csv.reader(StringIO(get_transactions_csv())):
     pprint(row)
