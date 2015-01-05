@@ -1,8 +1,6 @@
 Mint.com API Client
 ===================
 # Usage
-Decide how you will manage your Mint.com credentials.
-
 ```
 pip install mintr
 ```

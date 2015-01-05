@@ -9,7 +9,7 @@ setup(
   author_email = 'ben@shankware.com',
   name = 'mintr',
   packages = ['mintr'],
-  version = '%i.%i.%i' % MAJOR, MINOR, BUILD,
+  version = '{0}.{1}.{2}'.format(MAJOR, MINOR, BUILD),
   license = 'MIT',
   description = 'An API client for Mint.com',
   url = 'https://github.com/shanksauce/mintr',
