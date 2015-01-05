@@ -62,12 +62,47 @@ def login(username, password):
 
 @_validate_credentials
 def get_account_summaries():
+  input_query = '''[
+    {
+      "args": {
+        "types": [
+          "BANK",
+          "CREDIT",
+          "INVESTMENT",
+          "LOAN",
+          "MORTGAGE",
+          "OTHER_PROPERTY",
+          "REAL_ESTATE",
+          "VEHICLE",
+          "UNCLASSIFIED"
+        ]
+      },
+      "service": "MintAccountService",
+      "task": "getAccountsSortedByBalanceDescending",
+      "id": "420775"
+    },
+    {
+      "args": {
+        "feature": "loan_transaction"
+      },
+      "service": "MintNewFeatureEnablementService",
+      "task": "isEnabled",
+      "id": "576602"
+    },
+    {
+      "args": {
+        "feature": "investments"
+      },
+      "service": "MintNewFeatureEnablementService",
+      "task": "isEnabled",
+      "id": "313054"
+    }
+  ]'''
+
   c = requests.post(
     'https://wwws.mint.com/bundledServiceController.xevent?legacy=false',
     headers = auth_headers,
-    data = {
-      'input': '[{"args":{"types":["BANK","CREDIT","INVESTMENT","LOAN","MORTGAGE","OTHER_PROPERTY","REAL_ESTATE","VEHICLE","UNCLASSIFIED"]},"service":"MintAccountService","task":"getAccountsSortedByBalanceDescending","id":"420775"},{"args":{"feature":"loan_transaction"},"service":"MintNewFeatureEnablementService","task":"isEnabled","id":"576602"},{"args":{"feature":"investments"},"service":"MintNewFeatureEnablementService","task":"isEnabled","id":"313054"}]'
-    }
+    data = {'input': input_query}
   )
   accounts = c.json()['response']['420775']['response']
   accounts = map(
@@ -107,15 +142,3 @@ def get_transactions_csv():
     }
   )
   return c.text
-
-
-if __name__ == '__main__':
-  import config
-  import csv
-  from StringIO import StringIO
-  from pprint import pprint
-  login(config.USERNAME, config.PASSWORD)
-  pprint(get_account_summaries())
-  pprint(get_transactions())
-  for row in csv.reader(StringIO(get_transactions_csv())):
-    pprint(row)
