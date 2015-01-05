@@ -80,22 +80,6 @@ def get_account_summaries():
       "service": "MintAccountService",
       "task": "getAccountsSortedByBalanceDescending",
       "id": "420775"
-    },
-    {
-      "args": {
-        "feature": "loan_transaction"
-      },
-      "service": "MintNewFeatureEnablementService",
-      "task": "isEnabled",
-      "id": "576602"
-    },
-    {
-      "args": {
-        "feature": "investments"
-      },
-      "service": "MintNewFeatureEnablementService",
-      "task": "isEnabled",
-      "id": "313054"
     }
   ]'''
 
