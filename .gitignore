@@ -3,5 +3,6 @@ MANIFEST
 v
 *.sh
 *.pyc
-config.py
+README.rst
+mintr.egg-info
 

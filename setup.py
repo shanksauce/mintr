@@ -1,13 +1,15 @@
-from distutils.core import setup
-import mintr
+from setuptools import setup
 
 setup(
-  author = mintr.__author__,
-  name = mintr.__name__,
-  packages = [mintr.__name__], 
-  version = mintr.__version__,
-  license = mintr.__license__,
+  author = 'Ben Shank',
+  author_email = 'ben@shankware.com',
+  name = 'mintr',
+  packages = ['mintr'],
+  version = '0.0.4',
+  license = 'MIT',
   description = 'An API client for Mint.com',
   url = 'https://github.com/shanksauce/mintr',
-  keywords = ['client', 'api', 'mint', 'json']
+  keywords = ['client', 'api', 'mint', 'json'],
+  zip_safe = False,
+  install_requires = ['requests']
 )
