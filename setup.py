@@ -2,7 +2,7 @@ from setuptools import setup
 
 MAJOR=0
 MINOR=0
-BUILD=6
+BUILD=7
 
 setup(
   author = 'Ben Shank',

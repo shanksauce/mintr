@@ -93,7 +93,7 @@ def get_account_summaries():
   accounts = c.json()['response']['420775']['response']
   accounts = map(
     lambda x: (x['fiLoginDisplayName'] + ' - ' + x['name'], x['currentBalance']),
-    accounts
+    filter(lambda x: x['isActive'], accounts)
   )
   return dict(accounts)
 
